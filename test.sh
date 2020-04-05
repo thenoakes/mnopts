@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Calling mnopts returns the original arguments plus the parsed values as the first value
-set -- $(./mnopts.sh "long-l short-s" "test.sh [-l|--long] [-s|--short]" "$@")
+set -- $(./mnopts.sh "long-l short-s another-a" "test.sh [-l|--long] [-s|--short]" "$@")
 
-if [ -z "$1" ]; then exit 1; fi
+[[ -z "$1" ]] && exit 1
 
 # Set the parsed variables and remove them
 eval "$1"
