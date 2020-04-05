@@ -10,6 +10,14 @@
 
 # Note: help-h is an automatic option which invokes the usage statement
 
+# A function which checks a value against values in an array
+checkDuplicate () {
+  local e match="$1"
+  shift
+  for e; do [[ "$e" == "$match" ]] && return 0; done
+  return 1
+}
+
 # Parse the first argument as an array
 allOptions=($1)
 
@@ -20,13 +28,26 @@ usage="Usage: $2"
 shift 2
 
 # Build a list of the valid short-form options and set up the automatic bool variables
-shortOptions=""
+allLong=()
+allShort=()
 for option in ${allOptions[@]}
 do
     IFS='-' read -ra optionPair <<< "$option"
-    declare opt_${optionPair[1]}=false
-    shortOptions="$shortOptions${optionPair[1]}"
+
+    longOpt="${optionPair[0]}"
+    shortOpt="${optionPair[1]}"
+
+    # If either the long or short options alreadt exist, bail out
+    checkDuplicate "$longOpt" "${allLong[@]}" && exit 1
+    checkDuplicate "$shortOpt" "${allShort[@]}" && exit 1
+
+    # Add the long & short options to a list, and set the default value for the variable
+    allLong+=("$longOpt")
+    allShort+=("$shortOpt")
+    declare opt_${shortOpt}=false
 done
+
+shortOptions=$(printf "%s" "${allShort[@]}")
 
 # Match the arguments passed from the calling script against the options
 for arg in "$@"
