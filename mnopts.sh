@@ -8,7 +8,7 @@
 # Second argument is a string which is printed whenever help or an incorrect set of options is invoked
 # The full arguments of the calling script should also be passed as "$@"
 
-# Note: help-h is an automatic option which invokes the usage statement
+# Note: help:h is an automatic option which invokes the usage statement
 
 MNOPTS="$1"
 MNOPTS_USAGE="$2"
@@ -28,6 +28,13 @@ dupeError() {
     exit 1
 }
 
+set_longOpt_shortOpt() {
+    local pair="$1"
+    IFS=':' read -ra optionPair <<< "$pair"
+    longOpt="${optionPair[0]}"
+    shortOpt="${optionPair[1]}"
+}
+
 
 # Only act if MNOPTS are supplied
 if [ ! -z "$MNOPTS" ]; then
@@ -36,24 +43,17 @@ if [ ! -z "$MNOPTS" ]; then
 
     allOptions=($MNOPTS)
 
-    # Set the usage statement if MNOPTS_USAGE is supplied
-    if [ ! -z "$MNOPTS_USAGE" ]; then
-        usage="Usage: $MNOPTS_USAGE"
-    else
-        usage="Incorrect usage"
-    fi
-
     # Build a list of the valid short-form options and set up the automatic bool variables
     allLong=()
     allShort=()
     for option in ${allOptions[@]}
     do
-        IFS='-' read -ra optionPair <<< "$option"
+        set_longOpt_shortOpt "$option"
 
-        longOpt="${optionPair[0]}"
-        shortOpt="${optionPair[1]}"
+        echo "$shortOpt"
+        echo "$longOpt"
 
-        # If either the long or short options alreadt exist, bail out
+        # If either the long or short options already exist, bail out
         checkDuplicate "$longOpt" "${allLong[@]}" && dupeError "$longOpt"
         checkDuplicate "$shortOpt" "${allShort[@]}" && dupeError "$shortOpt"
 
@@ -63,7 +63,17 @@ if [ ! -z "$MNOPTS" ]; then
         declare opt_${shortOpt}=false
     done
 
-    shortOptions=$(printf "%s" "${allShort[@]}")
+    # Set a custom or automatic usage statement
+    if [ ! -z "$MNOPTS_USAGE" ]; then
+        usage="Usage: $MNOPTS_USAGE"
+    else
+        usage="script-name"
+        for opt in $allOptions
+        do
+            set_longOpt_shortOpt "$opt"
+            usage+=" [-${shortOpt}|--${longOpt}]"
+        done
+    fi
 
     # Match the arguments passed from the calling script against the options
     for arg in "$@"
@@ -76,13 +86,13 @@ if [ ! -z "$MNOPTS" ]; then
         do
 
             # Get the 'long form'
-            IFS='-' read -ra optionPair <<< "$option"
+            set_longOpt_shortOpt "$option"
 
             # Use it to set the 'short' form
-            if [ "$arg" == "--${optionPair[0]}" ]
+            if [ "$arg" == "--${longOpt}" ]
             then
                 optionMatched=true
-                set -- "$@" "-${optionPair[1]}"
+                set -- "$@" "-${shortOpt}"
             fi
         done
 
@@ -95,7 +105,7 @@ if [ ! -z "$MNOPTS" ]; then
 
     # Use standard getopts setup now that long-form options have been converted to short
     OPTIND=1
-    while getopts "$shortOptions" opt 2> /dev/null
+    while getopts "$(printf "%s" "${allShort[@]}")" opt 2> /dev/null
     do
         case "$opt" in
             "?")    echo "$usage" >&2 && exit 1 ;; 

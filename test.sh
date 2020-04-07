@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Usage: source ./mnopts.sh options usage-statement "$@"
-source ./mnopts.sh "long-l short-l another-a" "test.sh [-l|--long] [-s|--short] [-a|--another]" "$@"
+source ./mnopts.sh "long:l short:s another:a" "test.sh [-l|--long] [-s|--short] [-a|--another]" "$@"
 
 # Automatic parsed boolean arguments of the form opt_x where x is the short option
 echo "opt_l=$opt_l"
