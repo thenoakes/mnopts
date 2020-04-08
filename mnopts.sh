@@ -50,9 +50,6 @@ if [ ! -z "$MNOPTS" ]; then
     do
         set_longOpt_shortOpt "$option"
 
-        echo "$shortOpt"
-        echo "$longOpt"
-
         # If either the long or short options already exist, bail out
         checkDuplicate "$longOpt" "${allLong[@]}" && dupeError "$longOpt"
         checkDuplicate "$shortOpt" "${allShort[@]}" && dupeError "$shortOpt"
