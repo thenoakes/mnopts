@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # mnopts
-# Usage: source ./mnopts.sh "argument-a option-o flag-f" "usage string" "$@"
-# First argument is space separated strings of the form full-x where 
+# Usage: source ./mnopts.sh "argument:a option:o flag:f" "usage string" "$@"
+# First argument is space separated strings of the form full:x where 
 #   'full' sets up the long-form option (in this case it will be --full) and 
 #   'x' sets up the short-form option (in this case 'x')
 # Second argument is a string which is printed whenever help or an incorrect set of options is invoked
