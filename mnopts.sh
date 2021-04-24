@@ -65,7 +65,7 @@ if [ ! -z "$MNOPTS" ]; then
         usage="Usage: $MNOPTS_USAGE"
     else
         usage="script-name"
-        for opt in $allOptions
+        for opt in ${allOptions[@]}
         do
             set_longOpt_shortOpt "$opt"
             usage+=" [-${shortOpt}|--${longOpt}]"
